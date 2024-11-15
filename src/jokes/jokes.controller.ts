@@ -24,5 +24,10 @@ export class JokesController {
     return this.jokesService.findAll();
   }
 
+  @Get('types')
+  async getTypes() {
+    return this.jokesService.getJokeTypes();
+  }
+
 
 }

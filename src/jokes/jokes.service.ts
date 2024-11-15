@@ -27,4 +27,8 @@ export class JokesService {
     return this.jokeModel.find().exec();
   }
 
+  async getJokeTypes(): Promise<string[]> {
+    return this.jokeModel.distinct('type').exec();
+  }
+
 }
