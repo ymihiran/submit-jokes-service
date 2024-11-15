@@ -1,31 +1,28 @@
-// src/jokes/jokes.service.ts
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Joke, JokeDocument } from './schemas/joke.schema';
-import { Model } from 'mongoose';
+import { Controller, Get, Post, Body, Query, HttpException, HttpStatus } from '@nestjs/common';
+import { JokesService } from './jokes.service';
 import { CreateJokeDto } from './dto/create-joke.dto';
 
-@Injectable()
+@Controller('jokes')
+export class JokesController {
+  constructor(private readonly jokesService: JokesService) {}
 
-export class JokesService {
-  constructor(@InjectModel(Joke.name) private jokeModel: Model<JokeDocument>) {}
-
-  async create(createJokeDto: CreateJokeDto): Promise<Joke> {
-    const createdJoke = new this.jokeModel(createJokeDto);
-    return createdJoke.save();
+  @Post()
+  async create(@Body() createJokeDto: CreateJokeDto) {
+    try {
+      const joke = await this.jokesService.create(createJokeDto);
+      return { message: 'Joke submitted successfully', joke };
+    } catch (error) {
+      throw new HttpException('Failed to submit joke', HttpStatus.BAD_REQUEST);
+    }
   }
 
-  async findAll(): Promise<Joke[]> {
-    return this.jokeModel.find().exec();
+  @Get()
+  async findAll(@Query('type') type: string) {
+    if (type) {
+      return this.jokesService.findByType(type);
+    }
+    return this.jokesService.findAll();
   }
 
-  async findByType(type: string): Promise<Joke[]> {
-    return this.jokeModel.find({ type }).exec();
-  }
-
-  async findPending(): Promise<Joke[]> {
-    // TODO: Implement logic
-    return this.jokeModel.find().exec();
-  }
 
 }
