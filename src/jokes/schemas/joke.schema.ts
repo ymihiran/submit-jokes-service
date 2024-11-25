@@ -10,6 +10,9 @@ export class Joke {
 
   @Prop({ required: true })
   type: string;
+
+  @Prop({ default: 'pending' })  
+  status: string;  
 }
 
 export const JokeSchema = SchemaFactory.createForClass(Joke);

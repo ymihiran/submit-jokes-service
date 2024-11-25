@@ -5,7 +5,6 @@ import { Model } from 'mongoose';
 import { CreateJokeDto } from './dto/create-joke.dto';
 
 @Injectable()
-
 export class JokesService {
   constructor(@InjectModel(Joke.name) private jokeModel: Model<JokeDocument>) {}
 
@@ -23,12 +22,23 @@ export class JokesService {
   }
 
   async findPending(): Promise<Joke[]> {
-    // TODO: Implement logic
-    return this.jokeModel.find().exec();
+    return this.jokeModel.find({ status: 'pending' }).exec();
   }
 
   async getJokeTypes(): Promise<string[]> {
     return this.jokeModel.distinct('type').exec();
   }
 
+  async approveJoke(id: string): Promise<Joke> {
+    const joke = await this.jokeModel.findById(id);
+    if (!joke) throw new Error('Joke not found');
+    joke.status = 'approved';
+    return joke.save();
+  }
+
+  async rejectJoke(id: string): Promise<void> {
+    const joke = await this.jokeModel.findById(id);
+    if (!joke) throw new Error('Joke not found');
+    await joke.deleteOne();
+  }
 }
